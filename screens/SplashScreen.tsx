@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -7,6 +7,7 @@ import Animated, {
   withDelay,
   withRepeat,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -16,6 +17,7 @@ interface SplashScreenProps {
 
 const GRID_SIZE = 5;
 const SPLASH_DURATION_MS = 2500;
+const LOGO = require('../assets/lightoutLogo.png');
 
 function LightCell({ index, delay }: { index: number; delay: number }) {
   const opacity = useSharedValue(0.3);
@@ -38,7 +40,7 @@ function LightCell({ index, delay }: { index: number; delay: number }) {
     opacity: opacity.value,
   }));
 
-  const isCenter = index === Math.floor(GRID_SIZE * GRID_SIZE / 2);
+  const isCenter = index === Math.floor((GRID_SIZE * GRID_SIZE) / 2);
 
   return (
     <Animated.View
@@ -49,28 +51,47 @@ function LightCell({ index, delay }: { index: number; delay: number }) {
 }
 
 export function SplashScreen({ onFinish }: SplashScreenProps) {
-  const titleOpacity = useSharedValue(0);
-  const titleScale = useSharedValue(0.9);
+  const logoOpacity = useSharedValue(0);
+  const logoScale = useSharedValue(0.6);
+  const logoRotate = useSharedValue(-8);
+  const subtitleOpacity = useSharedValue(0);
 
   useEffect(() => {
-    titleOpacity.value = withTiming(1, { duration: 800 });
-    titleScale.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.back(1.2)) });
+    logoOpacity.value = withTiming(1, { duration: 700 });
+    logoScale.value = withSpring(1, { damping: 12, stiffness: 120 });
+    logoRotate.value = withSequence(
+      withSpring(4, { damping: 8, stiffness: 100 }),
+      withSpring(0, { damping: 14, stiffness: 140 })
+    );
+    subtitleOpacity.value = withDelay(500, withTiming(1, { duration: 600 }));
 
     const timer = setTimeout(onFinish, SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [onFinish, titleOpacity, titleScale]);
+  }, [onFinish, logoOpacity, logoRotate, logoScale, subtitleOpacity]);
 
-  const titleStyle = useAnimatedStyle(() => ({
-    opacity: titleOpacity.value,
-    transform: [{ scale: titleScale.value }],
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ scale: logoScale.value }, { rotate: `${logoRotate.value}deg` }],
+  }));
+
+  const subtitleStyle = useAnimatedStyle(() => ({
+    opacity: subtitleOpacity.value,
   }));
 
   return (
-    <View className="flex-1 items-center justify-center bg-slate-950 px-8">
-      <Animated.View style={titleStyle} className="mb-10 items-center">
-        <Text className="text-4xl font-bold tracking-widest text-amber-300">LIGHT OUT</Text>
-        <Text className="mt-2 text-base text-slate-400">Turn off all the lights</Text>
+    <View className="flex-1 items-center justify-center bg-[#12122b] px-8">
+      <Animated.View style={logoStyle} className="mb-8 overflow-hidden rounded-3xl shadow-lg shadow-cyan-500/30">
+        <Image
+          source={LOGO}
+          className="h-28 w-28"
+          resizeMode="cover"
+          accessibilityLabel="LightOut logo"
+        />
       </Animated.View>
+
+      <Animated.Text style={subtitleStyle} className="mb-8 text-base text-slate-400">
+        Turn off all the lights
+      </Animated.Text>
 
       <View className="flex-row flex-wrap justify-center gap-2" style={{ width: GRID_SIZE * 48 }}>
         {Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => (
