@@ -3,7 +3,10 @@ import * as SplashScreenNative from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { HomeScreen } from 'screens/HomeScreen';
+import { ProgressProvider } from 'context/ProgressContext';
+import { ScoresProvider } from 'context/ScoresContext';
+import { SettingsProvider } from 'context/SettingsContext';
+import { AppNavigator } from 'navigation/AppNavigator';
 import { SplashScreen } from 'screens/SplashScreen';
 
 import './global.css';
@@ -42,8 +45,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {showSplash ? <SplashScreen onFinish={handleSplashFinish} /> : <HomeScreen />}
-      <StatusBar style="light" />
+      <SettingsProvider>
+        <ProgressProvider>
+          <ScoresProvider>
+            {showSplash ? <SplashScreen onFinish={handleSplashFinish} /> : <AppNavigator />}
+            <StatusBar style="light" />
+          </ScoresProvider>
+        </ProgressProvider>
+      </SettingsProvider>
     </SafeAreaProvider>
   );
 }
