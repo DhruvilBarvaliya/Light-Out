@@ -141,9 +141,13 @@ export function LevelSelectScreen({ onBack, onSelectLevel }: LevelSelectScreenPr
         </View>
 
         <Text className="mt-3 text-center text-xs text-slate-400">
-          {starterLevelsComplete
-            ? 'All chapters unlocked — conquer every puzzle!'
-            : `Complete levels 1-${INITIAL_UNLOCKED_LEVELS} to unlock chapters 2-6.`}
+          {completedLevels.length === TOTAL_LEVELS
+            ? 'All levels conquered — well done!'
+            : !starterLevelsComplete
+              ? `Complete levels 1-${INITIAL_UNLOCKED_LEVELS} to unlock level ${INITIAL_UNLOCKED_LEVELS + 1}.`
+              : nextPlayableLevel
+                ? `Your next challenge: Level ${nextPlayableLevel}`
+                : 'Win each level to unlock the next.'}
         </Text>
       </View>
 
