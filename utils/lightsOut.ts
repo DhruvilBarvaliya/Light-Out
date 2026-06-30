@@ -121,5 +121,13 @@ export function isLevelUnlocked(level: number, completedLevels: number[]): boole
     return true;
   }
 
-  return areStarterLevelsComplete(completedLevels);
+  if (completedLevels.includes(level)) {
+    return true;
+  }
+
+  if (level === INITIAL_UNLOCKED_LEVELS + 1) {
+    return areStarterLevelsComplete(completedLevels);
+  }
+
+  return completedLevels.includes(level - 1);
 }
